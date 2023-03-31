@@ -5,8 +5,8 @@ import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/js
 const scene = new THREE.Scene();
 scene.add(new THREE.AxesHelper(5));
 
-const light = new THREE.SpotLight();
-light.position.set(20, 20, 20);
+const light = new THREE.PointLight(0xffffff, 10, 100);
+light.position.set(10, 50, 10);
 scene.add(light);
 
 const camera = new THREE.PerspectiveCamera(
@@ -26,7 +26,26 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-const material = new THREE.MeshNormalMaterial();
+const planeGeometry = new THREE.PlaneGeometry(200, 200);
+const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.position.set(0, -0.1, 0);
+plane.rotation.x = -Math.PI / 2;
+scene.add(plane);
+
+const material = new THREE.MeshPhysicalMaterial({
+	color: 0x999977,
+	roughness: 1.0,
+	metalness: 0,
+	reflecifity: 0,
+});
+
+const materialMetal = new THREE.MeshPhysicalMaterial({
+	color: 0x777777,
+	roughness: 0.5,
+	metalness: 1,
+	reflecifity: 1,
+});
 
 const group = new THREE.Group();
 const group2 = new THREE.Group();
@@ -108,7 +127,7 @@ loader.load(
 loader.load(
 	"models/02_Sockel.stl",
 	function (geometry) {
-		meshSockel = new THREE.Mesh(geometry, material);
+		meshSockel = new THREE.Mesh(geometry, materialMetal);
 		meshSockel.scale.set(0.005, 0.005, 0.005);
 		meshSockel.rotation.x = -Math.PI / 2;
 
@@ -142,15 +161,89 @@ function onWindowResize() {
 	render();
 }
 
+let counter = 0;
+let mode = Math.floor(Math.random() * 4);
+let stepsPerAnim = 20;
+
+let group1Mov = [];
+let group2Mov = [];
+let group3Mov = [];
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[i] = (Math.PI / 1.6 / stepsPerAnim) * i;
+	group2Mov[i] = (-Math.PI / 3 / stepsPerAnim) * i;
+	group3Mov[i] = (-Math.PI / 12 / stepsPerAnim) * i;
+}
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[stepsPerAnim + i] =
+		(Math.PI / 1.6 / stepsPerAnim) * (stepsPerAnim - i);
+	group2Mov[stepsPerAnim + i] =
+		(-Math.PI / 3 / stepsPerAnim) * (stepsPerAnim - i);
+	group3Mov[stepsPerAnim + i] =
+		(-Math.PI / 12 / stepsPerAnim) * (stepsPerAnim - i);
+}
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[stepsPerAnim * 2 + i] = (Math.PI / 1.6 / stepsPerAnim) * i;
+	group2Mov[stepsPerAnim * 2 + i] = (-Math.PI / 3 / stepsPerAnim) * i;
+	group3Mov[stepsPerAnim * 2 + i] = (Math.PI / 12 / stepsPerAnim) * i;
+}
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[stepsPerAnim * 3 + i] =
+		(Math.PI / 1.6 / stepsPerAnim) * (stepsPerAnim - i);
+	group2Mov[stepsPerAnim * 3 + i] =
+		(-Math.PI / 3 / stepsPerAnim) * (stepsPerAnim - i);
+	group3Mov[stepsPerAnim * 3 + i] =
+		(Math.PI / 12 / stepsPerAnim) * (stepsPerAnim - i);
+}
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[stepsPerAnim * 4 + i] = (Math.PI / 3 / stepsPerAnim) * i;
+	group2Mov[stepsPerAnim * 4 + i] = (-Math.PI / 4.75 / stepsPerAnim) * i;
+	group3Mov[stepsPerAnim * 4 + i] = (-Math.PI / 9 / stepsPerAnim) * i;
+}
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[stepsPerAnim * 5 + i] =
+		(Math.PI / 3 / stepsPerAnim) * (stepsPerAnim - i);
+	group2Mov[stepsPerAnim * 5 + i] =
+		(-Math.PI / 4.75 / stepsPerAnim) * (stepsPerAnim - i);
+	group3Mov[stepsPerAnim * 5 + i] =
+		(-Math.PI / 9 / stepsPerAnim) * (stepsPerAnim - i);
+}
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[stepsPerAnim * 6 + i] = (Math.PI / 3 / stepsPerAnim) * i;
+	group2Mov[stepsPerAnim * 6 + i] = (-Math.PI / 4.75 / stepsPerAnim) * i;
+	group3Mov[stepsPerAnim * 6 + i] = (Math.PI / 9 / stepsPerAnim) * i;
+}
+
+for (let i = 0; i < stepsPerAnim; i++) {
+	group1Mov[stepsPerAnim * 7 + i] =
+		(Math.PI / 3 / stepsPerAnim) * (stepsPerAnim - i);
+	group2Mov[stepsPerAnim * 7 + i] =
+		(-Math.PI / 4.75 / stepsPerAnim) * (stepsPerAnim - i);
+	group3Mov[stepsPerAnim * 7 + i] =
+		(Math.PI / 9 / stepsPerAnim) * (stepsPerAnim - i);
+}
+
 function animate() {
 	requestAnimationFrame(animate);
 
 	controls.update();
 
 	if (group3) {
-		group.rotation.z += 0.005;
-		group2.rotation.z -= 0.002;
-		group3.rotation.y += 0.002;
+		if (counter < stepsPerAnim * 2) {
+			group.rotation.z = group1Mov[mode * stepsPerAnim * 2 + counter];
+			group2.rotation.z = group2Mov[mode * stepsPerAnim * 2 + counter];
+			group3.rotation.y = group3Mov[mode * stepsPerAnim * 2 + counter];
+			counter++;
+		} else {
+			mode = Math.floor(Math.random() * 4);
+			counter = 0;
+		}
 	}
 
 	render();
