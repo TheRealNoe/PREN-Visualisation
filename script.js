@@ -1,6 +1,6 @@
-import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
-import { STLLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
+import * as THREE from 'three';
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 const scene = new THREE.Scene();
 scene.add(new THREE.AxesHelper(5));
@@ -63,9 +63,7 @@ loader.load(
 		meshGrundplatte.rotation.x = -Math.PI / 2;
 		scene.add(meshGrundplatte);
 	},
-	(xhr) => {
-		console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-	},
+	(xhr) => {},
 	(error) => {
 		console.log(error);
 	}
@@ -87,9 +85,7 @@ loader.load(
 		group.position.set(offsetX, offsetY, 0);
 		scene.add(group);
 	},
-	(xhr) => {
-		console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-	},
+	(xhr) => {},
 	(error) => {
 		console.log(error);
 	}
@@ -116,9 +112,7 @@ loader.load(
 
 		scene.add(group2);
 	},
-	(xhr) => {
-		console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-	},
+	(xhr) => {},
 	(error) => {
 		console.log(error);
 	}
@@ -145,9 +139,7 @@ loader.load(
 
 		scene.add(group3);
 	},
-	(xhr) => {
-		console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-	},
+	(xhr) => {},
 	(error) => {
 		console.log(error);
 	}
