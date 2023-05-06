@@ -16,7 +16,6 @@ const camera = new THREE.PerspectiveCamera(
 	1000
 );
 camera.position.set(3, 5, 8);
-camera.lookAt(10, 10, 0);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.outputEncoding = THREE.sRGBEncoding;
@@ -25,6 +24,7 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
+controls.target.set(2.5, 0, 0);
 
 const planeGeometry = new THREE.PlaneGeometry(200, 200);
 const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
@@ -163,7 +163,7 @@ function onWindowResize() {
 
 let counter = 0;
 let mode = Math.floor(Math.random() * 4);
-let stepsPerAnim = 20;
+let stepsPerAnim = 100;
 
 let group1Mov = [];
 let group2Mov = [];
