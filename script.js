@@ -18,7 +18,6 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(3, 5, 8);
 
 const renderer = new THREE.WebGLRenderer();
-renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -36,15 +35,13 @@ scene.add(plane);
 const material = new THREE.MeshPhysicalMaterial({
 	color: 0x999977,
 	roughness: 1.0,
-	metalness: 0,
-	reflecifity: 0,
+	metalness: 0
 });
 
 const materialMetal = new THREE.MeshPhysicalMaterial({
 	color: 0x777777,
 	roughness: 0.5,
-	metalness: 1,
-	reflecifity: 1,
+	metalness: 1
 });
 
 const group = new THREE.Group();
