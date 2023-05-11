@@ -1,12 +1,13 @@
-import * as THREE from 'three';
-import { STLLoader } from "three/examples/jsm/loaders/STLLoader";
+import * as THREE from "three";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 const scene = new THREE.Scene();
 scene.add(new THREE.AxesHelper(5));
 
-const light = new THREE.PointLight(0xffffff, 10, 100);
-light.position.set(10, 50, 10);
+const light = new THREE.PointLight(0xffffff);
+light.position.set(3, 5, 10);
+light.castShadow = true;
 scene.add(light);
 
 const camera = new THREE.PerspectiveCamera(
@@ -18,6 +19,8 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(3, 5, 8);
 
 const renderer = new THREE.WebGLRenderer();
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.BasicShadowMap;
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -25,131 +28,107 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.target.set(2.5, 0, 0);
 
-const planeGeometry = new THREE.PlaneGeometry(200, 200);
-const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.position.set(0, -0.1, 0);
-plane.rotation.x = -Math.PI / 2;
-scene.add(plane);
+const textureLoader = new THREE.TextureLoader();
+const objLoader = new OBJLoader();
 
-const material = new THREE.MeshPhysicalMaterial({
-	color: 0x999977,
-	roughness: 1.0,
-	metalness: 0
-});
-
-const materialMetal = new THREE.MeshPhysicalMaterial({
-	color: 0x777777,
+const materialMetal = new THREE.MeshStandardMaterial({
+	metalness: 1,
 	roughness: 0.5,
-	metalness: 1
 });
 
 const group = new THREE.Group();
 const group2 = new THREE.Group();
 const group3 = new THREE.Group();
 
-let meshGrundplatte, meshSockel, meshAusleger1, meshAusleger2;
+const planeGeometry = new THREE.PlaneGeometry(2000, 2000);
+const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xdddddd });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+plane.position.set(0, -0.1, 0);
+plane.rotation.x = -Math.PI / 2;
+scene.add(plane);
 
-const loader = new STLLoader();
+let textureWood, materialWood;
 
-loader.load(
-	"models/01_Grundplatte.stl",
-	function (geometry) {
-		meshGrundplatte = new THREE.Mesh(geometry, material);
-		meshGrundplatte.scale.set(0.005, 0.005, 0.005);
-		meshGrundplatte.rotation.x = -Math.PI / 2;
-		scene.add(meshGrundplatte);
-	},
-	(xhr) => {},
-	(error) => {
-		console.log(error);
-	}
-);
+let p1 = loadTexture("textures/wood.jpg").then((result) => {
+	textureWood = result;
+});
 
-loader.load(
-	"models/04_Ausleger_2.stl",
-	function (geometry) {
-		meshAusleger2 = new THREE.Mesh(geometry, material);
-		meshAusleger2.scale.set(0.005, 0.005, 0.005);
-		meshAusleger2.rotation.x = -Math.PI / 2;
+let objGrundplatte, objSockel, objAusleger1, objAusleger2;
 
-		group.add(meshAusleger2);
+let p2 = loadModel("models/04_Ausleger_2.obj").then((result) => {
+	objAusleger2 = result.children[0];
+});
 
-		const offsetX = 1.299;
-		const offsetY = 3.45;
+let p3 = loadModel("models/03_Ausleger_1.obj").then((result) => {
+	objAusleger1 = result.children[0];
+});
 
-		meshAusleger2.position.set(-offsetX, -offsetY, 0);
-		group.position.set(offsetX, offsetY, 0);
-		scene.add(group);
-	},
-	(xhr) => {},
-	(error) => {
-		console.log(error);
-	}
-);
+let p4 = loadModel("models/02_Sockel.obj").then((result) => {
+	objSockel = result.children[0];
+});
 
-loader.load(
-	"models/03_Ausleger_1.stl",
-	function (geometry) {
-		meshAusleger1 = new THREE.Mesh(geometry, material);
-		meshAusleger1.scale.set(0.005, 0.005, 0.005);
-		meshAusleger1.rotation.x = -Math.PI / 2;
+let p5 = loadModel("models/01_Grundplatte.obj").then((result) => {
+	objGrundplatte = result.children[0];
+});
 
-		group2.add(meshAusleger1);
-		let grp = new THREE.Group();
-		grp.add(group);
-		group2.add(grp);
+Promise.all([p1, p2, p3, p4, p5]).then(() => {
+	let offsetX, offsetY;
 
-		const offsetX = 0.9;
-		const offsetY = 0.6;
+	textureWood.wrapS = THREE.RepeatWrapping;
+	textureWood.wrapT = THREE.RepeatWrapping;
+	textureWood.repeat.set(3, 3);
 
-		meshAusleger1.position.set(-offsetX, -offsetY, 0);
-		grp.position.set(-offsetX, -offsetY, 0);
-		group2.position.set(offsetX, offsetY, 0);
+	materialWood = new THREE.MeshPhysicalMaterial({
+		map: textureWood,
+	});
 
-		scene.add(group2);
-	},
-	(xhr) => {},
-	(error) => {
-		console.log(error);
-	}
-);
+	objAusleger2.castShadow = true;
+	objAusleger2.material = materialWood;
+	group.add(objAusleger2);
+	offsetX = 1.299;
+	offsetY = 3.45;
+	objAusleger2.position.set(-offsetX, -offsetY, 0);
+	group.position.set(offsetX, offsetY, 0);
+	scene.add(group);
 
-loader.load(
-	"models/02_Sockel.stl",
-	function (geometry) {
-		meshSockel = new THREE.Mesh(geometry, materialMetal);
-		meshSockel.scale.set(0.005, 0.005, 0.005);
-		meshSockel.rotation.x = -Math.PI / 2;
+	objAusleger1.castShadow = true;
+	objAusleger1.material = materialWood;
+	group2.add(objAusleger1);
+	let grp = new THREE.Group();
+	grp.add(group);
+	group2.add(grp);
+	offsetX = 0.9;
+	offsetY = 0.6;
+	objAusleger1.position.set(-offsetX, -offsetY, 0);
+	grp.position.set(-offsetX, -offsetY, 0);
+	group2.position.set(offsetX, offsetY, 0);
+	scene.add(group2);
 
-		group3.add(meshSockel);
-		let grp = new THREE.Group();
-		grp.add(group2);
-		group3.add(grp);
+	objSockel.castShadow = true;
+	objSockel.material = materialMetal;
+	group3.add(objSockel);
+	grp = new THREE.Group();
+	grp.add(group2);
+	group3.add(grp);
+	offsetX = 0.9;
+	offsetY = 0.6;
+	objSockel.position.set(-offsetX, -offsetY, 0);
+	grp.position.set(-offsetX, -offsetY, 0);
+	group3.position.set(offsetX, offsetY, 0);
+	scene.add(group3);
 
-		const offsetX = 0.9;
-		const offsetY = 0.6;
+	objGrundplatte.castShadow = true;
+	objGrundplatte.receiveShadow = true;
+	objGrundplatte.material = materialWood;
+	objGrundplatte.geometry.computeVertexNormals();
+	scene.add(objGrundplatte);
 
-		meshSockel.position.set(-offsetX, -offsetY, 0);
-		grp.position.set(-offsetX, -offsetY, 0);
-		group3.position.set(offsetX, offsetY, 0);
-
-		scene.add(group3);
-	},
-	(xhr) => {},
-	(error) => {
-		console.log(error);
-	}
-);
+	animate();
+});
 
 window.addEventListener("resize", onWindowResize, false);
-function onWindowResize() {
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	render();
-}
 
+// Demo
 let counter = 0;
 let mode = Math.floor(Math.random() * 4);
 let stepsPerAnim = 100;
@@ -218,6 +197,18 @@ for (let i = 0; i < stepsPerAnim; i++) {
 		(Math.PI / 9 / stepsPerAnim) * (stepsPerAnim - i);
 }
 
+function loadTexture(url) {
+	return new Promise((resolve) => {
+		textureLoader.load(url, resolve);
+	});
+}
+
+function loadModel(url) {
+	return new Promise((resolve) => {
+		objLoader.load(url, resolve);
+	});
+}
+
 function animate() {
 	requestAnimationFrame(animate);
 
@@ -242,4 +233,9 @@ function render() {
 	renderer.render(scene, camera);
 }
 
-animate();
+function onWindowResize() {
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	render();
+}
